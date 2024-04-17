@@ -3,35 +3,32 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager,get_jwt, create_access_token, get_current_user, jwt_required, get_jwt_identity,create_refresh_token, current_user
 from flask_cors import CORS
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
+import redis
 from sqlalchemy.sql import func
+
+ACCESS_EXPIRES = timedelta(hours=0.5)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
+app.config["REDIS_PASSWORD"] = os.environ.get('REDIS_PASSWORD')
+app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET_KEY')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+
 jwt = JWTManager(app)
 cors = CORS(app, origins="*", allow_headers="*")
 
-class TokenBlocklist(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(36), nullable=False, index=True)
-    type = db.Column(db.String(16), nullable=False)
-    user_id = db.Column(
-        db.ForeignKey('user.id'),
-        default=lambda: get_current_user().id,
-        nullable=False,
-    )
-    created_at = db.Column(
-        db.DateTime,
-        server_default=func.now(),
-        nullable=False,
-    )
-
+jwt_redis_blocklist  = redis.Redis(
+  host='redis-18953.c301.ap-south-1-1.ec2.cloud.redislabs.com',
+  port=18953,
+  password=app.config["REDIS_PASSWORD"],
+   db=0, decode_responses=True)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
@@ -117,19 +114,18 @@ def user():
 
 # Callback function to check if a JWT exists in the database blocklist
 @jwt.token_in_blocklist_loader
-def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
+def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     jti = jwt_payload["jti"]
-    token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
-
-    return token is not None
+    token_in_redis = jwt_redis_blocklist.get(jti)
+    return token_in_redis is not None
 
 @app.route("/logout", methods=["DELETE"])
 @jwt_required(verify_type=False)
-def modify_token():
+def logout():
     token = get_jwt()
     jti = token["jti"]
     ttype = token["type"]
-    now = datetime.now(timezone.utc)
-    db.session.add(TokenBlocklist(jti=jti, type=ttype, created_at=now))
-    db.session.commit()
+    jwt_redis_blocklist.set(jti, "", ex=timedelta(hours=1))
+
+    # Returns "Access token revoked" or "Refresh token revoked"
     return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
