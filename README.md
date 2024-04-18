@@ -1,7 +1,9 @@
 # IEEE-JU
 This is the backend API of the IEEE-JU Backend JWT Auth Task.
   This was used to authenicate users with JWT token in the frontend.
-
+## Hookup with Frontend
+To view the frontend application github visit [here](https://github.com/ArkaDutta-Maker/Frontend-Form).
+For the deployed website showcasing and integrating the JWT authenication visit [here](https://frontend-form-2vk3.onrender.com/) 
 # Backend-JWT
 
 ## Description
@@ -33,6 +35,4 @@ After starting the server, you can use the following endpoints:
 - `/login`: To login a user.
 - `/profile`: To get the user profile (requires JWT token).
 - `/refresh`: To refresh expired access token with provided refresh token.
-## Hookup with Frontend
-To view the frontend application github visit [here](https://github.com/ArkaDutta-Maker/Frontend-Form).
-For the deployed website showcasing and integrating the JWT authenication visit [here](https://frontend-form-2vk3.onrender.com/) 
+
