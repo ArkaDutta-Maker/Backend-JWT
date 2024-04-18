@@ -32,6 +32,7 @@ After starting the server, you can use the following endpoints:
 - `/register`: To register a new user.
 - `/login`: To login a user.
 - `/profile`: To get the user profile (requires JWT token).
+- `/refresh`: To refresh expired access token with provided refresh token.
 ## Hookup with Frontend
 To view the frontend application github visit [here](https://github.com/ArkaDutta-Maker/Frontend-Form).
 For the deployed website showcasing and integrating the JWT authenication visit [here](https://frontend-form-2vk3.onrender.com/) 
