@@ -13,6 +13,7 @@ This project is a backend service that uses JSON Web Tokens (JWT) for authentica
 - User Registration
 - User Login
 - JWT Authentication
+- Refreshing Token automatically after expiry 
 - Secure password hashing
 - JWT Token Blocklisting using Redis Storage
 
