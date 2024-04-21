@@ -57,7 +57,9 @@ def my_unauthorized_loader(error):
         'error': 'Unauthorized',
         'message': 'Request does not contain an access token'
     }), 401
-
+@app.route('/')
+def home():
+    return jsonify({"message": "Welcome to the API"}), 200
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
