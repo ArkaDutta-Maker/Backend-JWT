@@ -93,7 +93,12 @@ def update_user():
     if name:
         user.name = name
     if email:
-        user.email = email
+        user_query = User.query.filter_by(email = email).first()
+        if user_query and user_query.id != user.id:
+            return jsonify({"error": "Email already exists"}), 400
+        else:
+            user.email = email
+
     db.session.commit()
     return jsonify({"message": "User details updated successfully"}), 200
 @app.route('/login', methods=['GET', 'POST'])
