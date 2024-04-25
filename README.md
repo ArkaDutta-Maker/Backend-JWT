@@ -12,6 +12,7 @@ This project is a backend service that uses JSON Web Tokens (JWT) for authentica
 ## Features
 - User Registration
 - User Login
+- User Update Details
 - JWT Authentication
 - Refreshing Token automatically after expiry 
 - Secure password hashing
@@ -34,6 +35,6 @@ This project is a backend service that uses JSON Web Tokens (JWT) for authentica
 After starting the server, you can use the following endpoints:
 - `/register`: To register a new user.
 - `/login`: To login a user.
-- `/profile`: To get the user profile (requires JWT token).
+- `/user`: To get the user profile (requires JWT token).
 - `/refresh`: To refresh expired access token with provided refresh token.
-
+- `/user/update`: To Update User details
