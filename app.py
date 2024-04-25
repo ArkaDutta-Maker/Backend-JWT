@@ -1,4 +1,4 @@
-from flask import Flask, request, url_for, jsonify
+from flask import Flask, request, url_for, jsonify, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager,get_jwt, create_access_token, get_current_user, jwt_required, get_jwt_identity,create_refresh_token, current_user
@@ -81,6 +81,21 @@ def user_lookup_callback(_jwt_header, jwt_data):
     identity = jwt_data["sub"]
     return User.query.filter_by(id=identity).one_or_none()
 
+@app.route('/user/update', methods=['PUT'])
+@jwt_required()
+def update_user():
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    form = request.get_json()
+    name = form.get('name')
+    email = form.get('email')
+    if name:
+        user.name = name
+    if email:
+        user.email = email
+    db.session.commit()
+    return jsonify({"message": "User details updated successfully"}), 200
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
