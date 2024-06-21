@@ -17,7 +17,8 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 app.config["REDIS_PASSWORD"] = os.environ.get('REDIS_PASSWORD')
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET_KEY')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-
+app.config['REDIS_ID'] = os.environ.get('REDIS_ID')
+app.config['REDIS_PORT'] = os.environ.get('REDIS_PORT')
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
@@ -25,8 +26,8 @@ jwt = JWTManager(app)
 cors = CORS(app, origins="*", allow_headers="*")
 
 jwt_redis_blocklist  = redis.Redis(
-  host='redis-18953.c301.ap-south-1-1.ec2.cloud.redislabs.com',
-  port=18953,
+  host=app.config["REDIS_ID"],
+  port=app.config["REDIS_PORT"],
   password=app.config["REDIS_PASSWORD"],
    db=0, decode_responses=True)
 class User(db.Model):
